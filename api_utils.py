@@ -52,12 +52,15 @@ def process_stream(stream, used_key):
     
     # 在状态块外部预先创建响应占位符
     response_placeholder = st.empty()
+    total_count = 0
+    chunk_num = 0
     
     with st.status("思考中...", expanded=True) as status:
         thinking_placeholder = st.empty()
         thinking_phase = True  # 思考阶段标记
         
         for chunk in stream:
+            chunk_num += 1
             # 解析数据块
             reasoning = chunk.choices[0].delta.reasoning_content or ""
             content = chunk.choices[0].delta.content or ""
@@ -80,13 +83,21 @@ def process_stream(stream, used_key):
 
             # 更新Token使用
             adjusted_length = sum(2 if '\u4e00' <= c <= '\u9fff' else 1 for c in (reasoning + content))
-            with get_cursor() as c: 
-                c.execute(
-                    "UPDATE api_keys SET used_tokens = used_tokens + ? WHERE key = ?",
-                    (adjusted_length, used_key)
-                )
+            total_count += adjusted_length
+            if chunk_num % 10 == 0:
+                with get_cursor() as c: 
+                    c.execute(
+                        "UPDATE api_keys SET used_tokens = used_tokens + ? WHERE key = ?",
+                        (total_count, used_key)
+                    )
+                    total_count = 0
 
         # 流结束后移除光标
         response_placeholder.markdown(response_content)
+        with get_cursor() as c: 
+                    c.execute(
+                        "UPDATE api_keys SET used_tokens = used_tokens + ? WHERE key = ?",
+                        (total_count, used_key)
+                    )
     
     return f"<think>{thinking_content}</think>{response_content}"
