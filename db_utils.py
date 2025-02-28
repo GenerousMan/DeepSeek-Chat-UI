@@ -1,16 +1,22 @@
-# db_utils.py
 import sqlite3
-import os
+import threading
 from contextlib import contextmanager
 
 conn = sqlite3.connect('app.db', check_same_thread=False)
+# 使用线程局部存储
+local = threading.local()
+
+def get_connection():
+    if not hasattr(local, 'conn'):
+        local.conn = sqlite3.connect('app.db', check_same_thread=False)
+    return local.conn
 
 @contextmanager
 def get_cursor():
+    conn = get_connection()
     cursor = conn.cursor()
     try:
         yield cursor
-        # 仅当存在活动事务时才提交
         if conn.in_transaction:
             conn.commit()
     except Exception as e:

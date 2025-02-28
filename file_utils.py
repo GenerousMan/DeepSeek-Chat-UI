@@ -13,7 +13,7 @@ def save_uploaded_files(upload_dir, uploaded_files):
         if file.name in current_files:
             continue
 
-        if file.size > 1 * 1024 * 1024:  # 1MB限制
+        if file.size > 10 * 1024 * 1024:  # 1MB限制
             st.error(f"文件 {file.name} 超过大小限制")
             continue
 
