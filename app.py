@@ -234,7 +234,8 @@ if __name__ == "__main__":
 
     if "messages" not in st.session_state:
         st.session_state.messages = [
-            {"role": "system", "content": "你是一个AI助手，请回答用户提出的问题。同时，如果用户提供了搜索结果，请在回答中添加相应的引用。"}
+            {"role": "system",
+             "content": "你是一个AI助手，请回答用户提出的问题。同时，如果用户提供了搜索结果，请在回答中添加相应的引用。若需要输出LaTex格式的数学公式，请用 Obsidian 兼容的 LaTeX 格式编写数学公式，要求：1. 行内公式用单个 $ 包裹，如 $x^2$。2. 独立公式块用两个 $$ 包裹，如：$$\int_a^b f(x)dx$$。"}
         ]
         st.session_state.valid_key = False
     main()

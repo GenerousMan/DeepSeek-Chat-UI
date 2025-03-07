@@ -1,5 +1,6 @@
 # auth_utils.py
 import bcrypt
+import sqlite3
 import streamlit as st
 from db_utils import conn, get_cursor
 
